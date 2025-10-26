@@ -309,7 +309,8 @@ RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
 ### SETUP SCRIPTS ###
 
 COPY setup_universal.sh /opt/codex/setup_universal.sh
-RUN chmod +x /opt/codex/setup_universal.sh
+COPY codex_startup.sh /opt/codex/codex_startup.sh
+RUN chmod +x /opt/codex/setup_universal.sh /opt/codex/codex_startup.sh
 
 ### VERIFICATION SCRIPT ###
 
