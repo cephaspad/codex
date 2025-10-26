@@ -283,6 +283,29 @@ RUN mise install "erlang@${ERLANG_VERSION}" "elixir@${ELIXIR_VERSION}-otp-27" \
     && mise cache clear || true \
     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
+### DOTNET ###
+
+ARG DOTNET_CHANNELS="8.0 9.0 6.0"
+ARG DOTNET_DEFAULT_CHANNEL=8.0
+ENV CODEX_DOTNET_CHANNELS=${DOTNET_CHANNELS}
+ENV DOTNET_DEFAULT_CHANNEL=${DOTNET_DEFAULT_CHANNEL}
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+ENV DOTNET_MULTILEVEL_LOOKUP=0
+ENV DOTNET_ROOT=/usr/share/dotnet/${DOTNET_DEFAULT_CHANNEL}
+ENV PATH=$DOTNET_ROOT:$PATH
+RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && chmod +x /tmp/dotnet-install.sh \
+    && mkdir -p /usr/share/dotnet \
+    && for channel in $DOTNET_CHANNELS; do \
+         install_dir="/usr/share/dotnet/${channel}"; \
+         mkdir -p "$install_dir"; \
+         /tmp/dotnet-install.sh --channel "$channel" --install-dir "$install_dir" --no-path; \
+       done \
+    && rm -f /usr/local/bin/dotnet \
+    && ln -s "/usr/share/dotnet/${DOTNET_DEFAULT_CHANNEL}/dotnet" /usr/local/bin/dotnet \
+    && rm -f /tmp/dotnet-install.sh
+
 ### SETUP SCRIPTS ###
 
 COPY setup_universal.sh /opt/codex/setup_universal.sh

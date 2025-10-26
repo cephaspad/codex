@@ -9,6 +9,20 @@ CODEX_ENV_RUST_VERSION=${CODEX_ENV_RUST_VERSION:-}
 CODEX_ENV_GO_VERSION=${CODEX_ENV_GO_VERSION:-}
 CODEX_ENV_SWIFT_VERSION=${CODEX_ENV_SWIFT_VERSION:-}
 CODEX_ENV_PHP_VERSION=${CODEX_ENV_PHP_VERSION:-}
+CODEX_ENV_DOTNET_VERSION=${CODEX_ENV_DOTNET_VERSION:-}
+
+remove_dotnet_from_path() {
+    local original_path=$1
+    local filtered=()
+    local entry
+    IFS=: read -ra entries <<<"$original_path"
+    for entry in "${entries[@]}"; do
+        if [[ "$entry" != /usr/share/dotnet/* ]]; then
+            filtered+=("$entry")
+        fi
+    done
+    (IFS=:; echo "${filtered[*]}")
+}
 
 echo "Configuring language runtimes..."
 
@@ -71,5 +85,31 @@ if [ -n "${CODEX_ENV_PHP_VERSION}" ]; then
     echo "# PHP: ${CODEX_ENV_PHP_VERSION} (default: ${current})"
     if [ "${current}" != "${CODEX_ENV_PHP_VERSION}" ]; then
         mise use --global "php@${CODEX_ENV_PHP_VERSION}"
+    fi
+fi
+
+if command -v dotnet > /dev/null 2>&1; then
+    base_dotnet_root=${DOTNET_ROOT:-/usr/share/dotnet/${DOTNET_DEFAULT_CHANNEL:-8.0}}
+    base_path=$(remove_dotnet_from_path "$PATH")
+    DOTNET_MULTILEVEL_LOOKUP=${DOTNET_MULTILEVEL_LOOKUP:-0}
+    if [ -n "${CODEX_ENV_DOTNET_VERSION}" ]; then
+        target="/usr/share/dotnet/${CODEX_ENV_DOTNET_VERSION}"
+        echo "# .NET SDK: ${CODEX_ENV_DOTNET_VERSION}"
+        if [ -d "${target}" ]; then
+            export DOTNET_ROOT="${target}"
+            export DOTNET_MULTILEVEL_LOOKUP=0
+            export PATH="${DOTNET_ROOT}:${base_path}"
+            dotnet --version || true
+        else
+            echo "  requested version is not installed; using default: ${base_dotnet_root##*/}"
+            export DOTNET_ROOT="${base_dotnet_root}"
+            export PATH="${DOTNET_ROOT}:${base_path}"
+            dotnet --version || true
+        fi
+    else
+        export DOTNET_ROOT="${base_dotnet_root}"
+        export DOTNET_MULTILEVEL_LOOKUP=0
+        export PATH="${DOTNET_ROOT}:${base_path}"
+        echo "# .NET SDK: default ($(dotnet --version || echo unknown))"
     fi
 fi

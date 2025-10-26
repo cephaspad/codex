@@ -51,4 +51,15 @@ elixir --version
 erl -version
 erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().' -noshell
 
+echo "- .NET:"
+ORIGINAL_PATH=$PATH
+dotnet --version
+ls -1 /usr/share/dotnet | sed 's/^/  /'
+for channel in $CODEX_DOTNET_CHANNELS; do
+    root="/usr/share/dotnet/${channel}"
+    if [ -d "$root" ]; then
+        DOTNET_MULTILEVEL_LOOKUP=0 DOTNET_ROOT="$root" PATH="$root:$ORIGINAL_PATH" dotnet --version
+    fi
+done
+
 echo "All language runtimes detected successfully."
