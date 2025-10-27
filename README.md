@@ -71,3 +71,18 @@ In addition to the packages specified in the table above, the following packages
 - `.NET SDK`: 6.0, 8.0, 9.0 (switch with `CODEX_ENV_DOTNET_VERSION`)
 
 See [Dockerfile](Dockerfile) for the full details of installed packages.
+
+## Spec Kit CLI
+
+The container's startup script installs or upgrades GitHub's Spec Kit CLI (`specify`) with `uv`, so you always get the latest release without rebuilding the image. To install or refresh it in another environment:
+
+```sh
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+specify --help  # verify; the CLI does not expose --version
+```
+
+For single-use runs without installing:
+
+```sh
+uvx --from git+https://github.com/github/spec-kit.git specify init my-project --ai claude
+```

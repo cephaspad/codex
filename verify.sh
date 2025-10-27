@@ -51,6 +51,14 @@ elixir --version
 erl -version
 erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().' -noshell
 
+echo "- Spec Kit CLI:"
+if command -v specify >/dev/null 2>&1; then
+    specify --help >/dev/null
+    echo "  specify CLI is installed"
+else
+    echo "  specify CLI not installed at build time (startup handles installation)."
+fi
+
 echo "- .NET:"
 ORIGINAL_PATH=$PATH
 dotnet --version

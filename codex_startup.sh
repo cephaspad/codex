@@ -20,5 +20,26 @@ else
     echo "codex CLI already available; skipping install."
 fi
 
+echo "Ensuring Spec Kit CLI is available..."
+if ! command -v uv >/dev/null 2>&1; then
+    echo "uv command not found; unable to install Spec Kit CLI." >&2
+elif uv tool list 2>/dev/null | grep -q '^specify-cli '; then
+    if ! uv tool upgrade specify-cli >/dev/null 2>&1; then
+        echo "Spec Kit CLI upgrade failed; attempting reinstall..." >&2
+        if ! uv tool install specify-cli --from git+https://github.com/github/spec-kit.git --force; then
+            echo "Spec Kit CLI reinstall failed; continuing without it." >&2
+        fi
+    fi
+else
+    echo "Spec Kit CLI not detected; installing..."
+    if ! uv tool install specify-cli --from git+https://github.com/github/spec-kit.git; then
+        echo "Spec Kit CLI installation failed; continuing without it." >&2
+    fi
+fi
+
+if command -v specify >/dev/null 2>&1; then
+    specify --help >/dev/null 2>&1 || true
+fi
+
 git config --global user.name "cephaspad"
 git config --global user.email "cephaspad@users.noreply.github.com"
