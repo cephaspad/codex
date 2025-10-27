@@ -11,7 +11,7 @@ For more details on environment setup, see [OpenAI Codex](http://platform.openai
 The Docker image is available at:
 
 ```
-docker pull ghcr.io/openai/codex-universal:latest
+docker pull ghcr.io/cephaspad/codex:latest
 ```
 
 This repository builds the image for both linux/amd64 and linux/arm64. However we only run the linux/amd64 version.
@@ -35,8 +35,10 @@ docker run --rm -it \
     -e CODEX_ENV_RUBY_VERSION=3.4.4 \
     -e CODEX_ENV_PHP_VERSION=8.4 \
     -v $(pwd):/workspace/$(basename $(pwd)) -w /workspace/$(basename $(pwd)) \
-    ghcr.io/openai/codex-universal:latest
+    ghcr.io/cephaspad/codex:latest bash
 ```
+
+> The container starts the Codex CLI by default; pass a command like `bash` if you prefer an interactive shell.
 
 `codex-universal` includes setup scripts that look for `CODEX_ENV_*` environment variables and configures the language version accordingly.
 
